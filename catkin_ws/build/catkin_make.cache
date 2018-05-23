@@ -1,0 +1,2 @@
+robair_opencv
+-DCATKIN_DEVEL_PREFIX=/home/lubuntu/Documents/robair_vision/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/lubuntu/Documents/robair_vision/catkin_ws/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/lubuntu/Documents/robair_vision/catkin_ws/devel
+
+Name: robair_opencv
+Description: Description of robair_opencv
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/lubuntu/Documents/robair_vision/catkin_ws/devel/lib 
+Requires: 
