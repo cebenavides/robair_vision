@@ -14,15 +14,14 @@ import cv2
 from bottle import run, post, request, response
 import threading
 from std_msgs.msg import String
-
-
-move = 0
+from geometry_msgs.msg import Twist
 
 def publishVision():
 
 	# Initialize a ROS publisher noeuds
-	pub = rospy.Publisher('vision', String, queue_size=10)
+	#pub = rospy.Publisher('vision', String, queue_size=10)
 	rospy.init_node('vision_objects', anonymous=True)
+	velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
 	rate = rospy.Rate(10) # 10hz
 
 	prototxt = "/home/lubuntu/Documents/robair_vision/catkin_ws/src/robair_opencv/scripts/MobileNetSSD_deploy.prototxt.txt"
@@ -62,7 +61,6 @@ def publishVision():
 		blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
 			0.007843, (300, 300), 127.5)
 
-		move = 0
 
 		# pass the blob through the network and obtain the detections and
 		# predictions
@@ -93,9 +91,18 @@ def publishVision():
 				y = startY - 15 if startY - 15 > 15 else startY + 15
 				cv2.putText(frame, label, (startX, y),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
+
 				rospy.loginfo(label)
-		        pub.publish(label)
-		        rate.sleep()
+				if CLASSES[idx] == "bottle" and confidence >= 0.7:
+					vel_msg = Twist()
+					vel_msg.linear.x = 2.0
+					vel_msg.linear.y = 0
+					vel_msg.linear.z = 0
+					vel_msg.angular.x = 0
+					vel_msg.angular.y = 0
+					vel_msg.angular.z = 1.8
+					velocity_publisher.publish(vel_msg)
+				rate.sleep()
 
 		# show the output frame
 		cv2.imshow("Frame", frame)
