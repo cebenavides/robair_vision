@@ -20,7 +20,7 @@ def publishVision():
 
 	# Initialize a ROS publisher noeuds
 	#pub = rospy.Publisher('vision', String, queue_size=10)
-	rospy.init_node('vision_objects', anonymous=True)
+	rospy.init_node('vision_objects', anonymous=False)
 	velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
 	rate = rospy.Rate(10) # 10hz
 
@@ -35,7 +35,7 @@ def publishVision():
 		"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
 		"sofa", "train", "tvmonitor"]
 	COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
-
+	SEIUL_CONFIDENCE = 0.75
 	# load our serialized model from disk
 	print("[INFO] loading model...")
 	net = cv2.dnn.readNetFromCaffe(prototxt, model)
@@ -67,6 +67,13 @@ def publishVision():
 		net.setInput(blob)
 		detections = net.forward()
 
+		# Clean the object variables
+		# This variables are made to implement priorities for the messages
+		# The priorities work depending on the object seen
+		bottle = False
+		person = False
+		cow = False
+
 		# loop over the detections
 		for i in np.arange(0, detections.shape[2]):
 			# extract the confidence (i.e., probability) associated with
@@ -92,17 +99,42 @@ def publishVision():
 				cv2.putText(frame, label, (startX, y),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
 
+				# sent message with which was SEIUL_CONFIDENCE
+				# set the objects as seen if they touch the treshold
 				rospy.loginfo(label)
-				if CLASSES[idx] == "bottle" and confidence >= 0.7:
-					vel_msg = Twist()
-					vel_msg.linear.x = 2.0
-					vel_msg.linear.y = 0
-					vel_msg.linear.z = 0
-					vel_msg.angular.x = 0
-					vel_msg.angular.y = 0
-					vel_msg.angular.z = 1.8
-					velocity_publisher.publish(vel_msg)
+				if CLASSES[idx] == "bottle" and confidence >= SEIUL_CONFIDENCE:
+					bottle = True
+				elif CLASSES[idx] == "person" and confidence >= SEIUL_CONFIDENCE:
+					person = True
+				elif CLASSES[idx] == "cow" and confidence >= SEIUL_CONFIDENCE:
+					cow = True
 				rate.sleep()
+
+		# Creates the movement message according to the object priority
+		# and publish the message
+		vel_msg = Twist()
+		if bottle:
+			vel_msg.linear.x = 1.0
+			vel_msg.linear.y = 0
+			vel_msg.linear.z = 0
+			vel_msg.angular.x = 0.7
+			vel_msg.angular.y = 0
+			vel_msg.angular.z = 1.8
+		elif person:
+			vel_msg.linear.x = 2.0
+			vel_msg.linear.y = 0
+			vel_msg.linear.z = 0
+			vel_msg.angular.x = 0
+			vel_msg.angular.y = 0
+			vel_msg.angular.z = -1.8
+		elif cow:
+			vel_msg.linear.x = -2.0
+			vel_msg.linear.y = 0
+			vel_msg.linear.z = 0
+			vel_msg.angular.x = 0
+			vel_msg.angular.y = 0
+			vel_msg.angular.z = 1.8
+		velocity_publisher.publish(vel_msg)
 
 		# show the output frame
 		cv2.imshow("Frame", frame)

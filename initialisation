@@ -1,0 +1,9 @@
+source ~/.profile &&
+source ~/Documents/robair_vision/catkin_ws/devel/setup.bash &&
+export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages &&
+workon cv2
+roscore
+rosrun
+rosrun turtlesim turtlesim_node
+rosrun robair_opencv vision_objects.py
+rosrun rqt_graph rqt_graph
