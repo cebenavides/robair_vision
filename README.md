@@ -21,3 +21,8 @@ Finalement, on peut éxecuter le noeud de vision
 ```
 rosrun robair_opencv vision_objects.py
 ```
+
+## Repertoires additionnels
+* **cascades/:** Exemples simples d'utilisation d'OpenCV en Python et C (prise de frames, affichage sur l'image)
+* **detection_personnes_cascades_http/:** Scripts pour détecter une personne avec des cascades Haar et mettre à jour un simulateur avec un mini-serveur HTTP
+* **detection_objets_dnn_http/:** Premiers utilisation du module Deep Neural Networks pour détecter de differents objets
