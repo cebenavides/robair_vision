@@ -11,7 +11,7 @@ Ce repositoire contient le projet de l'implementation de vision par ordinateur a
 ## Pour exectuer le projet
 D'abord, il faut faire le *source* du repertoire ROS
 ```
-source ~/Documents/robair_vision/catkin_ws/devel/setup.bash
+source catkin_ws/devel/setup.bash
 ```
 Ensuite, il faut ouvrir un *roscore* (s'il n'est déjà ouvert)
 ```
